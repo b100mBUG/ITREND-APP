@@ -1,4 +1,4 @@
-name: Build KivyMD APK
+name: Build APK
 
 on:
   push:
@@ -10,47 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Set up Python 3.8
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.8'
-
-      # Install dependencies (like Buildozer)
-      - name: Install dependencies
+      - name: Set up Docker with Buildozer
         run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-dev build-essential libssl-dev libffi-dev python3-setuptools git
-          pip install --upgrade pip
-          pip install buildozer
+          sudo apt update
+          sudo apt install -y docker.io
+          docker pull kivy/buildozer
 
-      # Install Android SDK and NDK
-      - name: Install Android SDK and NDK
+      - name: Build APK inside Docker
         run: |
-          # Download and unzip Android SDK tools
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-          unzip commandlinetools-linux-8512546_latest.zip -d $HOME/android-sdk/cmdline-tools/
+          docker run --rm -v ${{ github.workspace }}:/home/user/app -w /home/user/app kivy/buildozer buildozer android debug
 
-          # Accept licenses and install required components
-          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
-          $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platform-tools" "build-tools;30.0.3" "android-29" "ndk;21.3.6528147"
-
-          # Set ANDROID_SDK_ROOT environment variable
-          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
-          
-      # Build APK with buildozer, specify sdk root
-      - name: Build APK
-        run: |
-          buildozer android debug --sdk_root=$HOME/android-sdk
-
-      # Upload APK artifact
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@main
         with:
-          name: kivymd-apk
+          name: kivy-apk
           path: bin/*.apk
