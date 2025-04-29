@@ -31,14 +31,12 @@ jobs:
       # Install Android SDK and NDK
       - name: Install Android SDK and NDK
         run: |
-          # Create SDK directory
+          # Download and unzip Android SDK tools
           mkdir -p $HOME/android-sdk/cmdline-tools
-
-          # Download and unzip command-line tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
           unzip commandlinetools-linux-8512546_latest.zip -d $HOME/android-sdk/cmdline-tools
 
-          # Move cmdline-tools into the expected location
+          # Move cmdline-tools to the expected location
           mv $HOME/android-sdk/cmdline-tools/cmdline-tools/* $HOME/android-sdk/cmdline-tools/
           rm -rf $HOME/android-sdk/cmdline-tools/cmdline-tools
 
@@ -46,13 +44,13 @@ jobs:
           yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
           $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platform-tools" "build-tools;30.0.3" "android-29" "ndk;21.3.6528147"
 
-          # Set ANDROID_SDK_ROOT environment variable to avoid SDK root issue
+          # Set ANDROID_SDK_ROOT environment variable to ensure it is found
           echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
 
       # Run buildozer to build the APK
       - name: Build APK
         run: |
-          echo "ANDROID_SDK_ROOT=$HOME/android-sdk"
+          # Use the correct SDK root path
           buildozer -v android debug --sdk_root=$HOME/android-sdk
 
       # Upload APK artifact
