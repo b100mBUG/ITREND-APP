@@ -13,15 +13,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Docker with Buildozer
+      - name: Use preinstalled Docker to build APK
         run: |
-          sudo apt update
-          sudo apt install -y docker.io
-          docker pull kivy/buildozer
-
-      - name: Build APK inside Docker
-        run: |
-          docker run --rm -v ${{ github.workspace }}:/home/user/app -w /home/user/app kivy/buildozer buildozer android debug
+          docker run --rm \
+            -v ${{ github.workspace }}:/home/user/app \
+            -w /home/user/app \
+            kivy/buildozer \
+            buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@main
