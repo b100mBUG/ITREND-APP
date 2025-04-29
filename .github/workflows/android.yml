@@ -1,49 +1,55 @@
-name: Build Kivy Android App
+name: Build KivyMD APK
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout the repository
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      # Set up Python 3.8
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
         with:
           python-version: '3.8'
 
+      # Install dependencies (like Buildozer)
       - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install -y python3-pip zip unzip openjdk-17-jdk
+          sudo apt-get update
+          sudo apt-get install -y python3-dev build-essential libssl-dev libffi-dev python3-setuptools git
           pip install --upgrade pip
-          pip install buildozer cython
+          pip install buildozer
 
-      - name: Set up Android SDK
+      # Install Android SDK and NDK, AIDL independently
+      - name: Install Android SDK and AIDL Independently
         run: |
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          cd $HOME/android-sdk/cmdline-tools
-          curl -O https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
-          unzip commandlinetools-linux-9477386_latest.zip
-          mv cmdline-tools latest
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \
-            "platform-tools" \
-            "platforms;android-31" \
-            "build-tools;31.0.0" \
-            "cmdline-tools;latest"
+          # Install Android SDK tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+          unzip commandlinetools-linux-8512546_latest.zip -d $HOME/android-sdk
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
+          # Install specific build tools, platform tools, and NDK
+          $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platform-tools" "build-tools;30.0.3" "android-29" "ndk;21.3.6528147"
+          # Install AIDL explicitly
+          wget https://dl.google.com/android/repository/aidl-linux-x86_64.zip -O $HOME/android-sdk/aidl.zip
+          unzip -q $HOME/android-sdk/aidl.zip -d $HOME/android-sdk
+          rm $HOME/android-sdk/aidl.zip
           
-          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
-          echo "$HOME/android-sdk/build-tools/31.0.0" >> $GITHUB_PATH
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
+      # Run buildozer to build the APK
       - name: Build APK
         run: |
-          buildozer android debug
+          buildozer -v android debug
+
+      # Upload APK artifact
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: kivymd-apk
+          path: bin/*.apk
