@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Set up Python
@@ -18,12 +18,12 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Python dependencies
+      - name: Install Python deps
         run: |
           python -m pip install --upgrade pip
           pip install buildozer cython
 
-      - name: Install system dependencies
+      - name: Install system deps
         run: |
           sudo apt update
           sudo apt install -y zip unzip openjdk-17-jdk libffi-dev libssl-dev \
@@ -31,16 +31,7 @@ jobs:
               libsdl2-ttf-dev libportmidi-dev libswscale-dev \
               libavformat-dev libavcodec-dev zlib1g-dev \
               libgstreamer1.0-dev libmtdev-dev libgl1-mesa-dev \
-              libgles2-mesa-dev xclip wget
-
-      - name: Install Java dependencies for Android SDK
-        run: |
-          sudo apt-get install -y libjaxb-api-java
-          sudo apt-get install -y openjdk-17-jdk-headless
-          # Manually install JAXB for Java 9+ compatibility
-          wget https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar
-          sudo mkdir -p /usr/lib/jvm/java-17-openjdk-amd64/lib
-          sudo mv jaxb-api-2.3.1.jar /usr/lib/jvm/java-17-openjdk-amd64/lib/
+              libgles2-mesa-dev xclip
 
       - name: Install Android SDK + cmdline tools
         run: |
@@ -64,12 +55,14 @@ jobs:
         run: |
           yes | sdkmanager --licenses
           sdkmanager "platform-tools" "platforms;android-31" "build-tools;36.0.0" "tools" "platforms;android-31"
+        
+      - name: Install missing Java dependencies
+        run: |
+          sudo apt-get install -y libjaxb-api-java libjaxb2-impl-java
 
-      - name: Install AIDL tool and other SDK components
+      - name: Install AIDL tool and additional components
         run: |
           sdkmanager "build-tools;36.0.0" "ndk;25.0.0" "cmdline-tools;latest"
-          # Ensure all required build-tools and tools are installed
-          sdkmanager "build-tools;36.0.0"
 
       - name: Download NDK 25b
         run: |
