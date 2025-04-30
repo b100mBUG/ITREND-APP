@@ -31,7 +31,12 @@ jobs:
               libsdl2-ttf-dev libportmidi-dev libswscale-dev \
               libavformat-dev libavcodec-dev zlib1g-dev \
               libgstreamer1.0-dev libmtdev-dev libgl1-mesa-dev \
-              libgles2-mesa-dev xclip libjaxb-api-java libjaxb-java libjaxb2-impl-java
+              libgles2-mesa-dev xclip
+
+      - name: Install Java dependencies for Android SDK
+        run: |
+          sudo apt-get install -y libjaxb-api-java
+          sudo apt-get install -y openjdk-17-jdk-headless
 
       - name: Install Android SDK + cmdline tools
         run: |
@@ -59,6 +64,8 @@ jobs:
       - name: Install AIDL tool
         run: |
           sdkmanager "build-tools;36.0.0" "ndk;25.0.0" "cmdline-tools;latest"
+          # Ensure AIDL is installed correctly (sdkmanager should handle it)
+          sdkmanager "build-tools;36.0.0"
 
       - name: Download NDK 25b
         run: |
