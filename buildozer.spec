@@ -121,7 +121,7 @@ android.ndk = 23b
 #android.ndk_path =
 
 # (str) Android SDK directory (if empty, it will be automatically downloaded.)
-android.sdk_path = .buildozer/android/platform/android-sdk
+android.sdk_path = /home/runner/.buildozer/android/platform/android-ndk-r25b-dir
 
 
 # (str) ANT directory (if empty, it will be automatically downloaded.)
