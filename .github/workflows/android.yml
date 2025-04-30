@@ -55,10 +55,11 @@ jobs:
         run: |
           yes | sdkmanager --licenses
           sdkmanager "platform-tools" "platforms;android-31" "build-tools;36.0.0" "tools" "platforms;android-31"
-        
-      - name: Install missing Java dependencies
+
+      - name: Install JAXB libraries
         run: |
-          sudo apt-get install -y libjaxb-api-java libjaxb2-impl-java
+          wget https://github.com/javaee/jaxb-api/releases/download/2.3.1/jaxb-api-2.3.1.jar -P $HOME/.local/lib/java
+          wget https://github.com/javaee/jaxb-ri/releases/download/2.3.2-b03/jaxb-ri-2.3.2-b03.jar -P $HOME/.local/lib/java
 
       - name: Install AIDL tool and additional components
         run: |
