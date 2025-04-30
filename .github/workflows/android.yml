@@ -33,6 +33,10 @@ jobs:
               libgstreamer1.0-dev libmtdev-dev libgl1-mesa-dev \
               libgles2-mesa-dev xclip
 
+      - name: Install Java JAXB modules
+        run: |
+          sudo apt install -y libjaxb-api-java libjaxb2-annotate-java libjaxb2-impl-java
+
       - name: Install Android SDK + cmdline tools
         run: |
           mkdir -p "$HOME/android-sdk/cmdline-tools"
@@ -42,6 +46,7 @@ jobs:
           mv cmdline-tools latest
           mkdir -p "$HOME/.android"
           echo 'count=0' > "$HOME/.android/repositories.cfg"
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --update
 
       - name: Set SDK environment variables
         run: |
@@ -54,15 +59,13 @@ jobs:
       - name: Accept SDK licenses and install components
         run: |
           yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-31" "build-tools;36.0.0" "tools" "platforms;android-31"
+          sdkmanager "platform-tools" "platforms;android-31" "build-tools;36.0.0" "cmdline-tools;latest"
 
-      - name: Install AIDL tool
+      - name: Install NDK
         run: |
-          sdkmanager "build-tools;36.0.0" "ndk;25.0.0" "cmdline-tools;latest"
-          # Ensure AIDL is installed correctly (sdkmanager should handle it)
-          sdkmanager "build-tools;36.0.0"
+          sdkmanager "ndk;25.0.0"
 
-      - name: Download NDK 25b
+      - name: Download and setup NDK 25b
         run: |
           mkdir -p ~/.buildozer/android/platform
           cd ~/.buildozer/android/platform
